@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Tracker | Docker Lab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main>
+    <p class="eyebrow">DOCKER PRACTICE / FLASK + POSTGRESQL</p>
+    <h1>Task tracker - Version 2</h1>
+    <p class="subtitle">Small tasks. Persistent progress.</p>
+    <form class="add" method="post" action="{{ url_for('add_task') }}">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+      <label for="title">What do you need to do?</label>
+      <div class="input-row">
+        <input id="title" name="title" required maxlength="200" placeholder="Write my first Dockerfile" autocomplete="off">
+        <button type="submit">Add task</button>
+      </div>
+    </form>
+    <p class="count">{{ tasks|length }} tasks · {{ tasks|selectattr('completed')|list|length }} completed</p>
+    <ul>
+    {% for task in tasks %}
+      <li>
+        <div>
+          <span class="title {% if task.completed %}done{% endif %}">{{ task.title }}</span>
+          <small>#{{ task.id }} · {{ 'Completed' if task.completed else 'To do' }}</small>
+        </div>
+        <form method="post" action="{{ url_for('toggle_task', task_id=task.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+          <button class="secondary" type="submit">{{ 'Reopen' if task.completed else 'Complete' }}</button>
+        </form>
+      </li>
+    {% else %}
+      <li class="empty">No tasks yet. Add your first task above.</li>
+    {% endfor %}
+    </ul>
+    <footer>Practice challenge: can your tasks survive container recreation?</footer>
+  </main>
+</body>
+</html>
